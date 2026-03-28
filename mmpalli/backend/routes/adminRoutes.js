@@ -23,9 +23,16 @@ router.post('/foundation/log-monthly-fee', foundationCtrl.logMonthlyFee);
 router.post('/foundation/log-monthly-fee-bulk', foundationCtrl.logMonthlyFeeBulk);
 router.post('/foundation/log-expense', foundationCtrl.logExpense);
 router.post('/foundation/log-income', foundationCtrl.logIncome);
-
+// Add this to your adminRoutes.js
+router.get('/foundation/members', memberCtrl.getAllMembers);
+router.post('/foundation/village-updates', newsCtrl.addVillageUpdate);
+router.delete('/foundation/village-updates/:id', newsCtrl.deleteVillageUpdate);
 // --- VILLAGE SECTION ---
 router.post('/village/log-transaction', villageCtrl.logTransaction);
+// backend/routes/adminRoutes.js
+
+// Add this line so the frontend can "ask" for the matrix data
+// router.get('/foundation/contribution-matrix', memberCtrl.getContributionMatrix);
 
 // --- NEWS SECTION ---
 router.post('/news/add', newsCtrl.addNews);

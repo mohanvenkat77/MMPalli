@@ -12,9 +12,21 @@ export default function LogVillageTxnModal({ isOpen, onClose }: { isOpen: boolea
 
   const { mutate, isPending, isSuccess, isError, error, reset } = useLogVillageTransaction();
 
-  const handleSubmit = (e: React.FormEvent) => {
+const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutate({ party_name: party, amount: Number(amount), type, category, description: desc });
+    
+    // We must send the Financial Year so the backend knows where to put the money
+    const txnData = {
+      party_name: party,
+      amount: Number(amount),
+      type: type, // 'CREDIT' or 'DEBIT'
+      category: category,
+      description: desc,
+      financial_year: '2025-26', // <--- Added this
+      payment_mode: 'CASH'       // <--- Added this default
+    };
+
+    mutate(txnData);
   };
 
   const handleClose = () => {

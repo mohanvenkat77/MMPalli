@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import LogVillageTxnModal from '../components/admin/LogVillageTxnModal';
 
+// Animation Variants
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
@@ -18,11 +19,12 @@ const staggerContainer = {
   visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
 };
 
-export default function VillagePage() {
+export default function VillageAccountsPage() {
   // --- ADMIN STATE ---
   const { isAdmin } = useAuth(); 
   const [isTxnModalOpen, setIsTxnModalOpen] = useState(false);
   
+  // Financial Year synced to 2025-26
   const { data, isLoading, isError } = useVillageSummary('2025-26');
 
   if (isLoading) return (
@@ -31,17 +33,25 @@ export default function VillagePage() {
     </div>
   );
 
-  if (isError) return <div className="p-8 text-center text-red-500 mt-20">Failed to load village data.</div>;
+  if (isError) return (
+    <div className="min-h-screen bg-[#FAFAF9] flex flex-col items-center justify-center p-8 text-center">
+      <div className="bg-red-50 text-red-600 p-6 rounded-2xl border border-red-100 max-w-md shadow-sm">
+        <h2 className="text-xl font-bold mb-2">Connection Error</h2>
+        <p className="opacity-80">Failed to load village data. Please ensure your backend server is running on port 5000.</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-[#FAFAF9] selection:bg-trustBlue-500 selection:text-white pb-24 font-sans overflow-hidden">
       
       {/* 1. HERO HEADER */}
       <div className="relative pt-8 pb-32 lg:pb-40 overflow-hidden bg-slate-900 shadow-inner">
+        {/* Animated Background Orbs */}
         <motion.div animate={{ scale: [1, 1.1, 1], opacity: [0.15, 0.3, 0.15] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} className="absolute -top-[50%] right-[0%] w-[50vw] h-[50vw] rounded-full bg-trustBlue-500/40 blur-[100px]" />
         <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.25, 0.1] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }} className="absolute top-[20%] -left-[10%] w-[40vw] h-[40vw] rounded-full bg-emerald-500/30 blur-[100px]" />
         
-        {/* Fixed Noise Background */}
+        {/* Hardcoded Noise SVG to prevent 403 errors */}
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC44IiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsdGVyPSJ1cmwoI24pIi8+PC9zdmc+')] opacity-[0.03] mix-blend-overlay"></div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
@@ -64,8 +74,6 @@ export default function VillagePage() {
 
             {/* ACTION BUTTONS */}
             <motion.div variants={fadeInUp} className="flex flex-wrap gap-4">
-              
-              {/* NEW: SECURE ADD BUTTON */}
               {isAdmin && (
                 <button 
                   onClick={() => setIsTxnModalOpen(true)}
@@ -101,7 +109,7 @@ export default function VillagePage() {
           </motion.div>
           
           <motion.div variants={fadeInUp} className="lg:col-span-2">
-            <StatCard title="Pond Auction Revenue" value={data?.pond_auction_income || 0} icon={<Anchor size={28} />} isCurrency trend="Highest ever!" />
+            <StatCard title="Pond Auction Revenue" value={data?.pond_auction_income || 0} icon={<Anchor size={28} />} isCurrency trend="Community Asset" />
           </motion.div>
           <motion.div variants={fadeInUp} className="lg:col-span-2">
             <StatCard title="Government Funds" value={data?.government_funds || 0} icon={<Building2 size={28} />} isCurrency />
@@ -118,7 +126,7 @@ export default function VillagePage() {
           <VillageLedgerTable />
         </motion.div>
         
-        {/* NEW: THE MODAL COMPONENT */}
+        {/* DATA ENTRY MODAL */}
         <LogVillageTxnModal isOpen={isTxnModalOpen} onClose={() => setIsTxnModalOpen(false)} />
 
       </div>

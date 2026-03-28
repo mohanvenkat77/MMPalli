@@ -1,7 +1,7 @@
 // backend/controllers/adminNewsController.js
 const NewsHighlight = require('../models/NewsHighlight');
 const logAudit = require('../middleware/auditLogger');
-
+const VillageUpdate = require('../models/VillageUpdate');
 exports.addNews = async (req, res, next) => {
   try {
     const { title, description, month, highlight_type, image_url, display_order } = req.body;
@@ -36,3 +36,27 @@ exports.deleteNews = async (req, res, next) => {
     res.json({ success: true, message: 'News deactivated' });
   } catch (error) { next(error); }
 };  
+
+
+
+exports.addVillageUpdate = async (req, res, next) => {
+  try {
+    const update = await VillageUpdate.create(req.body);
+    res.status(201).json({ success: true, data: update });
+  } catch (error) { next(error); }
+};
+
+exports.deleteVillageUpdate = async (req, res, next) => {
+  try {
+    await VillageUpdate.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Update removed' });
+  } catch (error) { next(error); }
+};
+
+// Public fetch
+exports.getVillageUpdates = async (req, res, next) => {
+  try {
+    const updates = await VillageUpdate.find().sort({ createdAt: -1 });
+    res.json(updates);
+  } catch (error) { next(error); }
+};

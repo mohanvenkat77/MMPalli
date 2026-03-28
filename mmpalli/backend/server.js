@@ -10,12 +10,14 @@ const app = express();
 
 // Connect Database
 connectDB();
-
+app.use(cors());
 // Middleware
 app.use(helmet());
 app.use(cors({ origin: process.env.FRONTEND_URL }));
 app.use(morgan('dev'));
 app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
 // Routes
 const publicRoutes = require('./routes/publicRoutes');
 const adminRoutes = require('./routes/adminRoutes');

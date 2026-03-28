@@ -2,7 +2,8 @@
 const router = require('express').Router();
 const pub = require('../controllers/publicController');
 const report = require('../controllers/reportController');
-
+const memberCtrl = require('../controllers/adminMemberController');
+const newsCtrl = require('../controllers/adminNewsController');
 // Foundation
 router.get('/foundation/summary', pub.getFoundationSummary);
 router.get('/foundation/ledger', pub.getFoundationLedger);
@@ -22,7 +23,9 @@ router.get('/village/expenses', pub.getVillageExpenses);
 
 // News
 router.get('/news', pub.getNews);
-
+// Add this line so the frontend can "ask" for the matrix data
+router.get('/foundation/contribution-matrix', memberCtrl.getContributionMatrix);
+router.get('/foundation/village-updates', newsCtrl.getVillageUpdates);
 // Reports
 router.get('/reports/:type', report.generateReport);
 router.get('/export/:type', pub.exportData); // Export CSV/JSON
