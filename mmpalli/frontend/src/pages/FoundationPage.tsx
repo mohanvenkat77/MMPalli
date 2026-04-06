@@ -18,12 +18,14 @@ import ContributionMatrix from '../components/foundation/ContributionMatrix';
 import { useAuth } from '../context/AuthContext';
 import LogFeeModal from '../components/admin/LogFeeModal';
 import AddMemberModal from '../components/admin/AddMemberModal';
+import { getCurrentFinancialYear } from '../utils/financialYear';
 
 export default function FoundationPage() {
   const { isAdmin } = useAuth();
   const [isFeeModalOpen, setIsFeeModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
-  const { data, isLoading, isError } = useFoundationSummary('2025-26');
+  const currentFinancialYear = getCurrentFinancialYear();
+  const { data, isLoading, isError } = useFoundationSummary(currentFinancialYear);
 
   if (isLoading) {
     return (
@@ -55,7 +57,7 @@ export default function FoundationPage() {
                 <Link to="/" className="inline-flex items-center gap-2 text-sm text-white/75 transition hover:text-white">
                   <ArrowLeft size={16} /> Back to home
                 </Link>
-                <span className="eyebrow">Financial year 2025-26</span>
+                <span className="eyebrow">Financial year {currentFinancialYear}</span>
               </div>
               <h1 className="display-title mt-3 text-3xl leading-tight sm:text-5xl lg:text-6xl">Foundation records with a simpler, more readable dashboard.</h1>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-white/76 sm:text-lg sm:leading-8">

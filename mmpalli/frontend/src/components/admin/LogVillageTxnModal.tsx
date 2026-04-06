@@ -1,7 +1,8 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLogVillageTransaction } from '../../hooks/useVillageMutations';
 import { X, CheckCircle2, Loader2, IndianRupee, Plus } from 'lucide-react';
+import { getCurrentFinancialYear } from '../../utils/financialYear';
 
 export default function LogVillageTxnModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [party, setParty] = useState('');
@@ -12,18 +13,18 @@ export default function LogVillageTxnModal({ isOpen, onClose }: { isOpen: boolea
 
   const { mutate, isPending, isSuccess, isError, error, reset } = useLogVillageTransaction();
 
-const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // We must send the Financial Year so the backend knows where to put the money
+    const currentFinancialYear = getCurrentFinancialYear();
+
     const txnData = {
       party_name: party,
       amount: Number(amount),
-      type: type, // 'CREDIT' or 'DEBIT'
+      type: type,
       category: category,
       description: desc,
-      financial_year: '2025-26', // <--- Added this
-      payment_mode: 'CASH'       // <--- Added this default
+      financial_year: currentFinancialYear,
+      payment_mode: 'CASH'
     };
 
     mutate(txnData);

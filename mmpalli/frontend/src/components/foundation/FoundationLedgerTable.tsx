@@ -1,6 +1,7 @@
 ﻿import { useState } from 'react';
 import { useFoundationLedger } from '../../hooks/useFoundationLedger';
 import { ArrowDownRight, ArrowUpRight, Receipt, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { getCurrentFinancialYear } from '../../utils/financialYear';
 
 const currency = (amount: number) =>
   new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
@@ -8,7 +9,8 @@ const currency = (amount: number) =>
 export default function FoundationLedgerTable() {
   const [activeTab, setActiveTab] = useState('ALL');
   const [page, setPage] = useState(1);
-  const { data, isLoading } = useFoundationLedger('2025-26', activeTab, page);
+  const currentFinancialYear = getCurrentFinancialYear();
+  const { data, isLoading } = useFoundationLedger(currentFinancialYear, activeTab, page);
 
   const tabs = [
     { id: 'ALL', label: 'All Transactions' },
@@ -121,4 +123,3 @@ export default function FoundationLedgerTable() {
     </div>
   );
 }
-

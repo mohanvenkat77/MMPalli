@@ -6,11 +6,13 @@ import StatCard from '../components/shared/StatCard';
 import VillageLedgerTable from '../components/village/VillageLedgerTable';
 import { useAuth } from '../context/AuthContext';
 import LogVillageTxnModal from '../components/admin/LogVillageTxnModal';
+import { getCurrentFinancialYear } from '../utils/financialYear';
 
 export default function VillageAccountsPage() {
   const { isAdmin } = useAuth();
   const [isTxnModalOpen, setIsTxnModalOpen] = useState(false);
-  const { data, isLoading, isError } = useVillageSummary('2025-26');
+  const currentFinancialYear = getCurrentFinancialYear();
+  const { data, isLoading, isError } = useVillageSummary(currentFinancialYear);
 
   if (isLoading) {
     return (
@@ -41,7 +43,7 @@ export default function VillageAccountsPage() {
                 <Link to="/" className="inline-flex items-center gap-2 text-sm text-white/75 transition hover:text-white">
                   <ArrowLeft size={16} /> Back to home
                 </Link>
-                <span className="eyebrow">Financial year 2025-26</span>
+                <span className="eyebrow">Financial year {currentFinancialYear}</span>
               </div>
               <h1 className="display-title mt-3 text-3xl leading-tight sm:text-5xl lg:text-6xl">Village accounts presented in a cleaner public dashboard.</h1>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-white/76 sm:text-lg sm:leading-8">

@@ -18,6 +18,8 @@ export const useLogAmbedhkarTransaction = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ambedhkarLedger'] });
       queryClient.invalidateQueries({ queryKey: ['ambedhkarSummary'] });
+      queryClient.refetchQueries({ queryKey: ['ambedhkarLedger'], type: 'active' });
+      queryClient.refetchQueries({ queryKey: ['ambedhkarSummary'], type: 'active' });
     }
   });
 };
