@@ -1,85 +1,68 @@
-import { Code, Camera, Play, Heart, MapPin, Mail } from 'lucide-react';
+﻿import { Code, Camera, Play, Heart, MapPin, Mail } from 'lucide-react';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-slate-900 text-slate-300 pt-16 pb-8 border-t border-white/5 mt-auto">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
-          
-          {/* Brand Section */}
-          <div className="space-y-4">
-            <h3 className="text-white text-xl font-black italic tracking-tighter">
-              MMP<span className="text-saffron-500">Palli</span>
+    <footer className="relative mt-auto border-t border-white/10 bg-[#18231f] text-stone-200">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(200,145,102,0.18),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(82,132,158,0.12),transparent_30%)]" />
+      <div className="site-container relative z-10 py-6">
+        <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-2">
+            <h3 className="display-title text-2xl text-white">
+              Matla Mala <span className="text-amber-300">Palli</span>
             </h3>
-            <p className="text-sm leading-relaxed opacity-70">
-              A digital initiative for MatlaMala Palli development. 
-              Building transparency and community growth through technology.
-            </p>
-            <div className="flex items-center gap-2 text-xs text-saffron-400 font-bold uppercase tracking-widest">
-                <MapPin size={14} /> Anantapur, Andhra Pradesh
+            <div className="flex flex-wrap items-center gap-3 text-sm text-stone-300/78">
+              <span className="inline-flex items-center gap-2">
+                <MapPin size={14} className="text-amber-200" />
+                Anantapur, Andhra Pradesh
+              </span>
+              <span className="inline-flex items-center gap-2">
+                <Mail size={14} className="text-amber-200" />
+                dasimohanvenkat7@gmail.com
+              </span>
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="md:ml-auto">
-            <h4 className="text-white font-bold mb-6">Quick Navigation</h4>
-            <ul className="space-y-3 text-sm">
-              <li><a href="/foundation" className="hover:text-saffron-400 transition-colors">Jai Bheem Foundation</a></li>
-              <li><a href="/village-updates" className="hover:text-saffron-400 transition-colors">Village Updates</a></li>
-              <li><a href="/members" className="hover:text-saffron-400 transition-colors">Member Directory</a></li>
-            </ul>
-          </div>
-
-          {/* Social Presence */}
-          <div className="md:ml-auto">
-            <h4 className="text-white font-bold mb-6">Connect with Developer</h4>
-            <div className="flex gap-4">
-              {/* GitHub Link - Using 'Code' Icon for stability */}
-              <a 
-                href="https://github.com/mohanvenkat77" 
-                target="_blank" 
+          <div className="flex flex-wrap items-center gap-4">
+            <a href="/foundation" className="text-sm text-stone-300/84 transition hover:text-amber-200">Foundation</a>
+            <a href="/village-accounts" className="text-sm text-stone-300/84 transition hover:text-amber-200">Village</a>
+            <div className="flex gap-2">
+              <a
+                href="https://github.com/mohanvenkat77"
+                target="_blank"
                 rel="noopener noreferrer"
-                className="p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-all hover:-translate-y-1 text-white flex items-center gap-2"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 transition hover:bg-white/10"
                 title="GitHub"
               >
-                <Code size={20} />
+                <Code size={18} />
               </a>
-              {/* Instagram Link - Using 'Camera' Icon */}
-              <a 
-                href="https://www.instagram.com/mohan_fani?igsh=NWRhZGQ5YmxocHF0" 
-                target="_blank" 
+              <a
+                href="https://www.instagram.com/mohan_fani?igsh=NWRhZGQ5YmxocHF0"
+                target="_blank"
                 rel="noopener noreferrer"
-                className="p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-all hover:-translate-y-1 text-rose-400"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-rose-300 transition hover:bg-white/10"
                 title="Instagram"
               >
-                <Camera size={20} />
+                <Camera size={18} />
               </a>
-              {/* YouTube Link - Using 'Play' Icon */}
-              <a 
-                href="https://www.youtube.com/@mmptechie777" 
-                target="_blank" 
+              <a
+                href="https://www.youtube.com/@mmptechie777"
+                target="_blank"
                 rel="noopener noreferrer"
-                className="p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-all hover:-translate-y-1 text-red-500"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-red-300 transition hover:bg-white/10"
                 title="YouTube"
               >
-                <Play size={20} />
+                <Play size={18} />
               </a>
             </div>
-            <p className="mt-6 text-xs flex items-center gap-2">
-              <Mail size={14} className="text-saffron-500" />
-              dasimohanvenkat7@gmail.com
-            </p>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-medium text-center">
+        <div className="mt-4 flex flex-col gap-2 border-t border-white/10 pt-4 text-xs text-stone-300/70 md:flex-row md:items-center md:justify-between">
           <p>© {currentYear} MatlaMala Palli Development. All rights reserved.</p>
           <p className="flex items-center gap-1.5">
-            Designed & Developed with <Heart size={12} className="text-rose-500 fill-rose-500" /> by 
-            <span className="text-white font-bold">Mohan Venkat</span>
+            Crafted with <Heart size={12} className="fill-rose-400 text-rose-400" /> by <span className="font-semibold text-white">Mohan Venkat</span>
           </p>
         </div>
       </div>

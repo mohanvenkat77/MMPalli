@@ -21,7 +21,6 @@ export default function LogFeeModal({ isOpen, onClose }: Props) {
     mutate({ 
       phone_number: phone, 
       amount: Number(amount), 
-      category: category, // Sending the chosen tag
       payment_mode: paymentMode, 
       description: `${category.replace('_', ' ')}` 
     });

@@ -1,3 +1,206 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --bg: #f5efe6;
+    --bg-soft: #fbf8f2;
+    --panel: rgba(255, 252, 247, 0.86);
+    --panel-strong: #fffdf9;
+    --line: rgba(111, 78, 55, 0.14);
+    --line-strong: rgba(111, 78, 55, 0.22);
+    --text: #201a16;
+    --muted: #6e6259;
+    --brand: #a8592b;
+    --brand-deep: #7f3f1d;
+    --navy: #18342f;
+    --olive: #335c51;
+    --sky: #315f8d;
+    --shadow-soft: 0 22px 60px rgba(77, 52, 37, 0.12);
+    --shadow-card: 0 16px 40px rgba(32, 26, 22, 0.08);
+  }
+
+  * {
+    @apply box-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    background:
+      radial-gradient(circle at top left, rgba(223, 176, 132, 0.28), transparent 30%),
+      radial-gradient(circle at top right, rgba(49, 95, 141, 0.12), transparent 26%),
+      linear-gradient(180deg, #fbf7f1 0%, #f5efe6 48%, #efe6da 100%);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background: rgba(168, 89, 43, 0.2);
+    color: var(--text);
+  }
+}
+
+@layer components {
+  .display-title {
+    font-family: 'Fraunces', serif;
+    letter-spacing: -0.04em;
+  }
+
+  .page-shell {
+    @apply relative min-h-screen overflow-hidden pb-24;
+  }
+
+  .page-shell::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.42), transparent 78%);
+    pointer-events: none;
+    opacity: 0.35;
+  }
+
+  .site-container {
+    @apply relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .hero-panel {
+    @apply relative overflow-hidden rounded-[2rem] border px-6 py-8 sm:px-8 sm:py-10 lg:px-12 lg:py-12;
+    background: linear-gradient(145deg, rgba(24, 52, 47, 0.96), rgba(34, 67, 59, 0.92));
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .hero-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(233, 181, 120, 0.2), transparent 26%),
+      radial-gradient(circle at 85% 18%, rgba(142, 192, 215, 0.18), transparent 24%),
+      linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent 55%);
+    pointer-events: none;
+  }
+
+  .section-card {
+    @apply rounded-[1.75rem] border;
+    background: var(--panel);
+    border-color: var(--line);
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(18px);
+  }
+
+  .soft-card {
+    @apply rounded-[1.5rem] border bg-white/70;
+    border-color: rgba(111, 78, 55, 0.12);
+    box-shadow: 0 10px 30px rgba(42, 29, 22, 0.05);
+  }
+
+  .section-title {
+    @apply text-2xl font-semibold text-slate-900 sm:text-3xl;
+    font-family: 'Fraunces', serif;
+    letter-spacing: -0.03em;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center rounded-full px-4 py-2 text-[11px] font-extrabold uppercase tracking-[0.24em];
+    background: rgba(255, 255, 255, 0.12);
+    color: #f4d7b1;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .muted-label {
+    @apply text-[11px] font-extrabold uppercase tracking-[0.24em];
+    color: #8b7d72;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold text-white transition duration-200;
+    background: linear-gradient(135deg, var(--brand), #c87842);
+    box-shadow: 0 12px 25px rgba(168, 89, 43, 0.24);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 28px rgba(168, 89, 43, 0.3);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition duration-200;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: #f7f1e8;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition duration-200;
+    background: rgba(255, 252, 247, 0.78);
+    border: 1px solid rgba(111, 78, 55, 0.14);
+    color: var(--text);
+  }
+
+  .btn-ghost:hover {
+    background: rgba(255, 252, 247, 0.96);
+  }
+
+  .field-label {
+    @apply mb-2 block text-[11px] font-extrabold uppercase tracking-[0.22em] text-slate-500;
+  }
+
+  .field-input {
+    @apply w-full rounded-[1.1rem] border px-4 py-3 text-sm text-slate-900 outline-none transition;
+    border-color: rgba(111, 78, 55, 0.16);
+    background: rgba(255, 255, 255, 0.82);
+  }
+
+  .field-input:focus {
+    border-color: rgba(168, 89, 43, 0.4);
+    box-shadow: 0 0 0 4px rgba(168, 89, 43, 0.1);
+  }
+
+  .badge-chip {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em];
+    background: rgba(24, 52, 47, 0.08);
+    color: #35554e;
+  }
+
+  .dashboard-grid {
+    @apply grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3;
+  }
+
+  .table-shell {
+    @apply overflow-hidden rounded-[1.5rem] border bg-white/70;
+    border-color: rgba(111, 78, 55, 0.12);
+  }
+}
+

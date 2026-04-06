@@ -4,6 +4,7 @@ const apiKeyAuth = require('../middleware/apiKeyAuth');
 const memberCtrl = require('../controllers/adminMemberController');
 const foundationCtrl = require('../controllers/adminFoundationController');
 const villageCtrl = require('../controllers/adminVillageController');
+const ambedhkarCtrl = require('../controllers/adminAmbedhkarController');
 const newsCtrl = require('../controllers/adminNewsController');
 
 /**
@@ -29,6 +30,9 @@ router.post('/foundation/village-updates', newsCtrl.addVillageUpdate);
 router.delete('/foundation/village-updates/:id', newsCtrl.deleteVillageUpdate);
 // --- VILLAGE SECTION ---
 router.post('/village/log-transaction', villageCtrl.logTransaction);
+
+// --- AMBEDHKAR JAYANTHI SECTION ---
+router.post('/ambedhkar-jayanthi/log-transaction', ambedhkarCtrl.logTransaction);
 // backend/routes/adminRoutes.js
 
 // Add this line so the frontend can "ask" for the matrix data

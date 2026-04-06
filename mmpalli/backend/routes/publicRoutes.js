@@ -21,6 +21,10 @@ router.get('/village/ledger', pub.getVillageLedger);
 router.get('/village/income', pub.getVillageIncome);
 router.get('/village/expenses', pub.getVillageExpenses);
 
+// Ambedhkar Jayanthi
+router.get('/ambedhkar-jayanthi/summary', pub.getAmbedhkarSummary);
+router.get('/ambedhkar-jayanthi/ledger', pub.getAmbedhkarLedger);
+
 // News
 router.get('/news', pub.getNews);
 // Add this line so the frontend can "ask" for the matrix data

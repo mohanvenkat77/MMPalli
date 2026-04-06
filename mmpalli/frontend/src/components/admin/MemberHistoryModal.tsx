@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Receipt, IndianRupee, ArrowDownCircle } from 'lucide-react';
+import { X, ArrowDownCircle } from 'lucide-react';
 
 export default function MemberHistoryModal({ isOpen, onClose, member }: any) {
   if (!member) return null;

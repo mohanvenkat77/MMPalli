@@ -1,18 +1,18 @@
 ﻿import { useState } from 'react';
-import { useFoundationLedger } from '../../hooks/useFoundationLedger';
+import { useAmbedhkarLedger } from '../../hooks/useAmbedhkarLedger';
 import { ArrowDownRight, ArrowUpRight, Receipt, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const currency = (amount: number) =>
   new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
 
-export default function FoundationLedgerTable() {
+export default function AmbedhkarLedgerTable() {
   const [activeTab, setActiveTab] = useState('ALL');
   const [page, setPage] = useState(1);
-  const { data, isLoading } = useFoundationLedger('2025-26', activeTab, page);
+  const { data, isLoading } = useAmbedhkarLedger('2025-26', activeTab, page);
 
   const tabs = [
     { id: 'ALL', label: 'All Transactions' },
-    { id: 'CREDIT', label: 'Income' },
+    { id: 'CREDIT', label: 'Contributions' },
     { id: 'DEBIT', label: 'Expenses' },
   ];
 
@@ -20,7 +20,7 @@ export default function FoundationLedgerTable() {
     <div className="w-full">
       <div className="mb-6 flex flex-col gap-4 border-b border-[color:var(--line)] pb-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="muted-label">Audit trail</p>
+          <p className="muted-label">Celebration ledger</p>
           <h2 className="mt-2 text-2xl font-bold text-slate-900">Recent transactions</h2>
         </div>
         <div className="flex gap-2 overflow-x-auto rounded-full bg-stone-100/80 p-1">
@@ -44,7 +44,7 @@ export default function FoundationLedgerTable() {
       {isLoading ? (
         <div className="flex h-64 flex-col items-center justify-center text-slate-500">
           <Loader2 size={28} className="mb-3 animate-spin" />
-          <p>Loading ledger data...</p>
+          <p>Loading celebration ledger...</p>
         </div>
       ) : data?.data?.length === 0 ? (
         <div className="flex h-64 flex-col items-center justify-center text-slate-500">
@@ -58,7 +58,7 @@ export default function FoundationLedgerTable() {
               <thead className="bg-stone-100/80 text-[11px] uppercase tracking-[0.18em] text-slate-500">
                 <tr>
                   <th className="px-6 py-4">Date</th>
-                  <th className="px-6 py-4">Details</th>
+                  <th className="px-6 py-4">Contributor</th>
                   <th className="px-6 py-4">Category</th>
                   <th className="px-6 py-4 text-right">Amount</th>
                 </tr>
@@ -73,7 +73,7 @@ export default function FoundationLedgerTable() {
                       <p className="mt-1 text-xs text-slate-500">{txn.voucher_number}</p>
                     </td>
                     <td className="px-6 py-5">
-                      <p className="font-semibold text-slate-800">{txn.paid_to_or_received_from}</p>
+                      <p className="font-semibold text-slate-800">{txn.contributor_name}</p>
                       <p className="mt-1 max-w-md text-sm text-slate-500">{txn.description}</p>
                     </td>
                     <td className="px-6 py-5">

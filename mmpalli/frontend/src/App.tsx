@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LandingPage from './pages/LandingPage';
@@ -8,23 +8,26 @@ import BulkCollectionPage from './pages/BulkCollectionPage';
 import AdminLoginModal from './components/admin/AdminLoginModal';
 import { Lock, Unlock } from 'lucide-react';
 import Footer from './components/shared/Footer';
-
-// SEPARATE PAGE IMPORTS
+import AmbedhkarJayanthiPage from './pages/AmbedhkarJayanthiPage';
 import VillageAccountsPage from './pages/VillageAccountsPage';
 import VillageUpdatesPage from './pages/VillageUpdatesPage';
 
 function FloatingAdminButton() {
   const { isAdmin, logout } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <>
-      <button 
-        onClick={() => isAdmin ? logout() : setIsModalOpen(true)}
-        className={`fixed bottom-6 right-6 p-4 rounded-full shadow-2xl text-white transition-all duration-300 hover:scale-110 z-40 ${
-          isAdmin ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-slate-800 hover:bg-trustBlue-900'
+      <button
+        onClick={() => (isAdmin ? logout() : setIsModalOpen(true))}
+        className={`fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full border text-white shadow-[0_18px_40px_rgba(28,23,20,0.2)] transition hover:-translate-y-0.5 ${
+          isAdmin
+            ? 'border-emerald-300/40 bg-emerald-600 hover:bg-emerald-700'
+            : 'border-white/30 bg-[color:var(--navy)] hover:bg-[#22463f]'
         }`}
+        aria-label={isAdmin ? 'Logout admin' : 'Open admin login'}
       >
-        {isAdmin ? <Unlock size={24} /> : <Lock size={24} />}
+        {isAdmin ? <Unlock size={22} /> : <Lock size={22} />}
       </button>
       <AdminLoginModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>
@@ -34,15 +37,14 @@ function FloatingAdminButton() {
 export default function App() {
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-[#FAFAF9] text-slate-900 font-sans relative flex flex-col">
+      <div className="relative flex min-h-screen flex-col text-slate-900">
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/foundation" element={<FoundationPage />} />
+            <Route path="/ambedhkar-jayanthi" element={<AmbedhkarJayanthiPage />} />
             <Route path="/members" element={<MemberDirectory />} />
             <Route path="/bulk-collection" element={<BulkCollectionPage />} />
-            
-            {/* THE TWO SEPARATE VILLAGE ROUTES */}
             <Route path="/village-accounts" element={<VillageAccountsPage />} />
             <Route path="/village-updates" element={<VillageUpdatesPage />} />
           </Routes>
@@ -53,3 +55,4 @@ export default function App() {
     </AuthProvider>
   );
 }
+

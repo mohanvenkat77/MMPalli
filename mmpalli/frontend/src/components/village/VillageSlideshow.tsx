@@ -1,62 +1,59 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
+﻿import { useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+
+const categoryStyles: Record<string, string> = {
+  BIRTHDAY: 'bg-amber-100 text-amber-800',
+  MARRIAGE: 'bg-rose-100 text-rose-700',
+  FESTIVAL: 'bg-emerald-100 text-emerald-700',
+  GENERAL: 'bg-slate-200 text-slate-700',
+  NEWS: 'bg-slate-200 text-slate-700',
+};
 
 export default function VillageSlideshow({ updates }: { updates: any[] }) {
   const [index, setIndex] = useState(0);
 
-  if (!updates || updates.length === 0) return null;
+  if (!updates || updates.length === 0) {
+    return <div className="flex min-h-[360px] items-center justify-center text-slate-500">No spotlight cards available yet.</div>;
+  }
 
-  const next = () => setIndex((prev) => (prev + 1) % updates.length);
-  const prev = () => setIndex((prev) => (prev - 1 + updates.length) % updates.length);
-
-  const current = updates[index];
+  const current = updates[index % updates.length];
 
   return (
-    <div className="relative w-full max-w-5xl mx-auto h-[500px] overflow-hidden rounded-[3rem] shadow-2xl bg-slate-900 group">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={index}
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -50 }}
-          className="absolute inset-0 flex flex-col md:flex-row"
-        >
-          {/* Image Part */}
-          <div className="w-full md:w-1/2 h-full relative">
-            <img 
-              src={current.image_url || 'https://images.unsplash.com/photo-1518173946687-a4c8a9ba332f'} 
-              className="w-full h-full object-cover"
-              alt={current.title}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent md:hidden" />
-          </div>
+    <div className="overflow-hidden rounded-[1.75rem] border border-[color:var(--line)] bg-[color:var(--panel-strong)]">
+      <div className="grid min-h-[440px] lg:grid-cols-[1fr_0.92fr]">
+        <div className="min-h-[280px] bg-stone-200">
+          <img
+            src={current.image_url || 'https://images.unsplash.com/photo-1518173946687-a4c8a9ba332f'}
+            className="h-full w-full object-cover"
+            alt={current.title}
+          />
+        </div>
 
-          {/* Text Part */}
-          <div className="w-full md:w-1/2 p-12 flex flex-col justify-center text-white relative">
-            <Quote className="text-saffron-500 mb-6 opacity-30" size={48} />
-            <span className="text-saffron-400 font-black text-xs uppercase tracking-[0.3em] mb-4">
+        <div className="flex flex-col justify-between p-6 sm:p-8">
+          <div>
+            <span className={`inline-flex rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] ${categoryStyles[current.category] || categoryStyles.GENERAL}`}>
               {current.category}
             </span>
-            <h2 className="text-3xl md:text-4xl font-black mb-6 leading-tight">
-              {current.title}
-            </h2>
-            <p className="text-slate-300 leading-relaxed text-lg">
-              {current.description}
-            </p>
+            <h2 className="display-title mt-5 text-4xl leading-tight text-slate-900">{current.title}</h2>
+            <p className="mt-4 text-base leading-8 text-slate-600">{current.description}</p>
           </div>
-        </motion.div>
-      </AnimatePresence>
 
-      {/* Navigation Controls */}
-      <div className="absolute bottom-10 right-10 flex gap-3 z-30">
-        <button onClick={prev} className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl backdrop-blur-md transition-all">
-          <ChevronLeft size={24} />
-        </button>
-        <button onClick={next} className="p-4 bg-saffron-500 hover:bg-saffron-600 text-white rounded-2xl shadow-lg transition-all">
-          <ChevronRight size={24} />
-        </button>
+          <div className="mt-8 flex items-center justify-between gap-4">
+            <p className="text-sm text-slate-500">
+              Card {index + 1} of {updates.length}
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setIndex((prev) => (prev - 1 + updates.length) % updates.length)} className="btn-ghost h-11 w-11 rounded-full px-0">
+                <ChevronLeft size={18} />
+              </button>
+              <button onClick={() => setIndex((prev) => (prev + 1) % updates.length)} className="btn-primary h-11 w-11 rounded-full px-0">
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+

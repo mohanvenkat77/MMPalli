@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 import { useMembers } from '../hooks/useMembers';
 import { useBulkMonthlyFee } from '../hooks/useAdminMutations';
-import { CheckCircle2, Users, Search, Save, ArrowLeft, IndianRupee } from 'lucide-react';
+import { Search, Save, ArrowLeft, IndianRupee } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function BulkCollectionPage() {

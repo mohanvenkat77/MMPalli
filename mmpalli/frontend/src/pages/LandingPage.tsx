@@ -1,15 +1,51 @@
-import { useState, useRef } from 'react';
+﻿import { useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { publicApi, adminApi } from '../config/api';
 import { useAuth } from '../context/AuthContext';
-import { 
-  ArrowRight, Landmark, Tent, Bell, Sparkles, 
-  Settings, X, Camera, Plus, ChevronLeft, ChevronRight, Quote 
+import {
+  ArrowRight,
+  Landmark,
+  Tent,
+  Settings,
+  X,
+  Camera,
+  ChevronLeft,
+  ChevronRight,
+  HeartHandshake,
 } from 'lucide-react';
 
-const noiseBase64 = "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC44IiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsdGVyPSJ1cmwoI24pIi8+PC9zdmc+')";
+const categoryStyles: Record<string, string> = {
+  BIRTHDAY: 'bg-amber-100 text-amber-800',
+  MARRIAGE: 'bg-rose-100 text-rose-700',
+  FESTIVAL: 'bg-emerald-100 text-emerald-700',
+  GENERAL: 'bg-slate-200 text-slate-700',
+  NEWS: 'bg-slate-200 text-slate-700',
+};
+
+const quickLinks = [
+  {
+    title: 'Foundation Accounts',
+    description: 'Monthly fees, member support, and trust expenses in one clear ledger.',
+    to: '/foundation',
+    icon: Landmark,
+    accent: 'from-amber-200 via-orange-100 to-white',
+  },
+  {
+    title: 'Village Accounts',
+    description: 'Auction funds, public works, and development spending presented simply.',
+    to: '/village-accounts',
+    icon: Tent,
+    accent: 'from-emerald-200 via-teal-100 to-white',
+  },
+  {
+    title: 'Ambedhkar Jayanthi',
+    description: 'Community celebration contributions and expense tracking with better clarity.',
+    to: '/ambedhkar-jayanthi',
+    icon: HeartHandshake,
+    accent: 'from-sky-200 via-cyan-100 to-white',
+  },
+];
 
 export default function LandingPage() {
   const { isAdmin } = useAuth();
@@ -20,242 +56,277 @@ export default function LandingPage() {
   const [slideIndex, setSlideIndex] = useState(0);
   const [newUpdate, setNewUpdate] = useState({ title: '', description: '', image_url: '', category: 'GENERAL' });
 
-  // 1. Fetch Slideshow Data
   const { data: updates, isLoading } = useQuery({
     queryKey: ['villageUpdates'],
-    queryFn: () => publicApi.get('/foundation/village-updates').then(r => r.data)
+    queryFn: () => publicApi.get('/foundation/village-updates').then((r) => r.data),
   });
 
-  // 2. Handle Image Upload (Local File to Base64)
-// frontend/src/pages/LandingPage.tsx
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
 
-  const reader = new FileReader();
-  reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
 
-  reader.onload = (event) => {
-    const img = new Image();
-    img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const width = 800;
+        const height = (img.height / img.width) * width;
 
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      
-      // FORCE SMALL DIMENSIONS
-      const width = 800;
-      const height = (img.height / img.width) * width;
-      
-      canvas.width = width;
-      canvas.height = height;
+        canvas.width = width;
+        canvas.height = height;
 
-      const ctx = canvas.getContext('2d');
-      ctx?.drawImage(img, 0, 0, width, height);
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
 
-      // 0.4 quality is VERY small but looks okay for a slideshow
-      const compressedBase64 = canvas.toDataURL('image/jpeg', 0.4);
-      
-      console.log("Image processed. New size:", Math.round(compressedBase64.length / 1024), "KB");
-      
-      setNewUpdate({ ...newUpdate, image_url: compressedBase64 });
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.4);
+        setNewUpdate((current) => ({ ...current, image_url: compressedBase64 }));
+      };
     };
   };
-};
 
-  // 3. Add Update Mutation
   const addMutation = useMutation({
-    mutationFn: (data: any) => adminApi.post('/foundation/village-updates', data),
+    mutationFn: (data: typeof newUpdate) => adminApi.post('/foundation/village-updates', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['villageUpdates'] });
       setIsEditModalOpen(false);
       setNewUpdate({ title: '', description: '', image_url: '', category: 'GENERAL' });
-    }
+    },
   });
 
-  const nextSlide = () => updates && setSlideIndex((prev) => (prev + 1) % updates.length);
-  const prevSlide = () => updates && setSlideIndex((prev) => (prev - 1 + updates.length) % updates.length);
+  const activeUpdate = useMemo(() => {
+    if (!updates?.length) return null;
+    return updates[slideIndex % updates.length];
+  }, [updates, slideIndex]);
+
+  const nextSlide = () => updates?.length && setSlideIndex((prev) => (prev + 1) % updates.length);
+  const prevSlide = () => updates?.length && setSlideIndex((prev) => (prev - 1 + updates.length) % updates.length);
 
   return (
-    <div className="min-h-screen bg-[#FAFAF9] selection:bg-saffron-500 pb-24 font-sans overflow-hidden">
-      
-      {/* --- HERO SECTION --- */}
-      <div className="relative pt-32 pb-40 lg:pt-48 lg:pb-56 overflow-hidden bg-trustBlue-900">
-        <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }} transition={{ duration: 8, repeat: Infinity }} className="absolute -top-[20%] -right-[10%] w-[70vw] h-[70vw] rounded-full bg-saffron-600/30 blur-[120px]" />
-        <div className="absolute inset-0 opacity-20 mix-blend-overlay" style={{ backgroundImage: noiseBase64 }}></div>
-        
-        <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-md text-saffron-300 text-sm font-medium mb-8">
-            <Sparkles size={16} /> <span>MatlaMala Palli Community Portal</span>
-          </div>
-          <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter mb-8 italic">
-            MMP<span className="text-saffron-400 not-italic">Palli</span>
-          </h1>
-          <p className="max-w-xl mx-auto text-xl text-trustBlue-100/80 font-light leading-relaxed">
-            Real-time transparency for foundation funds, village infrastructure, and community milestones.
-          </p>
-        </div>
-      </div>
-
-      {/* --- MAIN CARDS --- */}
-      <div className="relative z-20 max-w-7xl mx-auto px-4 -mt-24 lg:-mt-32">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-32">
-          {/* Foundation Card */}
-          <Link to="/foundation">
-            <div className="group h-full bg-white rounded-[2.5rem] p-10 shadow-xl border border-white hover:shadow-saffron-500/10 transition-all border-l-[8px] border-l-saffron-500">
-              <div className="w-14 h-14 rounded-2xl bg-saffron-50 flex items-center justify-center mb-6 shadow-inner"><Landmark className="text-saffron-600" /></div>
-              <h2 className="text-3xl font-black text-slate-900 mb-2 italic">Foundation</h2>
-              <p className="text-slate-500 mb-8 leading-relaxed">Track member monthly contributions and trust expenses.</p>
-              <div className="flex items-center text-saffron-600 font-bold">Open Ledger <ArrowRight className="ml-2 group-hover:translate-x-2 transition-transform" /></div>
-            </div>
-          </Link>
-
-          {/* Village Accounts Card */}
-          <Link to="/village-accounts">
-            <div className="group h-full bg-white rounded-[2.5rem] p-10 shadow-xl border border-white hover:shadow-emerald-500/10 transition-all border-l-[8px] border-l-emerald-500">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center mb-6 shadow-inner"><Tent className="text-emerald-600" /></div>
-              <h2 className="text-3xl font-black text-slate-900 mb-2 italic">Village Accounts</h2>
-              <p className="text-slate-500 mb-8 leading-relaxed">Monitor pond auctions, govt funds, and public projects.</p>
-              <div className="flex items-center text-emerald-600 font-bold">Open Ledger <ArrowRight className="ml-2 group-hover:translate-x-2 transition-transform" /></div>
-            </div>
-          </Link>
-        </div>
-
-        {/* --- VILLAGE UPDATES SLIDESHOW SECTION --- */}
-        <div className="mb-10">
-          <div className="flex items-center justify-between mb-12">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-saffron-500 text-white rounded-2xl shadow-lg shadow-saffron-500/20"><Bell size={24} /></div>
-              <h2 className="text-4xl font-black text-slate-900 italic tracking-tight uppercase">Village Updates</h2>
-            </div>
-            
-            {isAdmin && (
-              <button 
-                onClick={() => setIsEditModalOpen(true)}
-                className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all shadow-xl"
-              >
-                <Settings size={18} /> Edit Spotlight
-              </button>
-            )}
-          </div>
-
-          {!isLoading && updates?.length > 0 ? (
-            <div className="relative bg-slate-900 rounded-[3rem] overflow-hidden h-[550px] shadow-2xl group/slide border border-white/5">
-              <AnimatePresence mode="wait">
-                <motion.div 
-                  key={slideIndex}
-                  initial={{ opacity: 0, scale: 1.05 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="absolute inset-0 flex flex-col lg:flex-row"
-                >
-                  <div className="w-full lg:w-1/2 h-1/2 lg:h-full border-b lg:border-b-0 lg:border-r border-white/10">
-                    <img src={updates[slideIndex].image_url} className="w-full h-full object-cover" alt="" />
-                  </div>
-                  <div className="w-full lg:w-1/2 h-1/2 lg:h-full p-12 lg:p-20 flex flex-col justify-center text-white relative">
-                    <Quote className="text-saffron-500/10 absolute top-10 left-10" size={120} />
-                    <span className="text-saffron-400 font-black text-xs uppercase tracking-[0.3em] mb-4 bg-white/5 inline-block w-fit px-3 py-1 rounded-md">
-                      {updates[slideIndex].category}
-                    </span>
-                    <h3 className="text-4xl lg:text-5xl font-black mb-6 leading-tight italic">
-                      {updates[slideIndex].title}
-                    </h3>
-                    <p className="text-slate-400 text-lg leading-relaxed font-light">
-                      {updates[slideIndex].description}
-                    </p>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-              
-              <div className="absolute bottom-10 right-10 flex gap-3 z-30">
-                <button onClick={prevSlide} className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl backdrop-blur-md transition-all"><ChevronLeft /></button>
-                <button onClick={nextSlide} className="p-4 bg-saffron-500 hover:bg-saffron-600 text-white rounded-2xl shadow-lg transition-all"><ChevronRight /></button>
-              </div>
-            </div>
-          ) : (
-            <div className="h-[300px] rounded-[3rem] bg-slate-100 flex items-center justify-center text-slate-400 italic border-2 border-dashed border-slate-200">
-              No updates logged yet.
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* --- ADMIN EDIT MODAL --- */}
-      <AnimatePresence>
-        {isEditModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsEditModalOpen(false)} className="absolute inset-0 bg-slate-900/80 backdrop-blur-md" />
-            <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="relative bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl p-10 overflow-hidden border border-white/20">
-              
-              <div className="flex justify-between items-center mb-10">
-                <h3 className="text-3xl font-black italic tracking-tight">Create <span className="text-saffron-500 not-italic">Spotlight</span></h3>
-                <button onClick={() => setIsEditModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><X /></button>
-              </div>
-              
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Update Title</label>
-                    <input value={newUpdate.title} onChange={e => setNewUpdate({...newUpdate, title: e.target.value})} type="text" placeholder="Happy Birthday Mohan!" className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-saffron-500 transition-all font-bold" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Category</label>
-                    <select value={newUpdate.category} onChange={e => setNewUpdate({...newUpdate, category: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none font-black text-slate-700">
-                      <option value="BIRTHDAY">Birthday 🎂</option>
-                      <option value="MARRIAGE">Marriage 💍</option>
-                      <option value="FESTIVAL">Festival 🏮</option>
-                      <option value="GENERAL">General News 📢</option>
-                    </select>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Description</label>
-                  <textarea value={newUpdate.description} onChange={e => setNewUpdate({...newUpdate, description: e.target.value})} rows={3} placeholder="Write a short note for the village..." className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-saffron-500 transition-all" />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Update Photo</label>
+    <div className="page-shell pt-6 sm:pt-8">
+      <div className="site-container space-y-8 sm:space-y-10">
+        <section className="hero-panel">
+          <div className="relative z-10 grid gap-10 lg:grid-cols-[1.25fr_0.9fr] lg:items-end">
+            <div className="space-y-6 text-white">
+              <span className="eyebrow">MatlaMala Palli community portal</span>
+              <div className="space-y-4">
+                <h1 className="display-title max-w-3xl text-5xl leading-tight sm:text-6xl lg:text-7xl">
+                  {/* <span className="text-white/90">A cleaner digital home for </span> */}
+                  <span className="bg-gradient-to-r from-amber-200 via-orange-200 to-yellow-100 bg-clip-text text-transparent">
+                    Matla Mala Palli
+                  </span>
                   
-                  {/* Hidden Input triggered by the Camera icon */}
-                  <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
+                </h1>
+                <p className="max-w-2xl text-base leading-8 text-white/76 sm:text-lg">
+                  Track community funds, celebrations, and development progress through a simpler experience that feels trustworthy,
+                  calm, and easy for everyone to understand.
+                </p>
+              </div>
 
-                  <div className="flex gap-4">
-                    <button 
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="shrink-0 p-6 bg-saffron-50 text-saffron-600 rounded-[2rem] hover:bg-saffron-100 transition-all border-2 border-dashed border-saffron-200 flex flex-col items-center gap-1 group active:scale-95"
-                    >
-                      <Camera size={28} className="group-hover:scale-110 transition-transform" />
-                      <span className="text-[9px] font-black uppercase tracking-tighter">Upload</span>
-                    </button>
+              <div className="flex flex-wrap gap-3">
+                <Link to="/foundation" className="btn-primary">
+                  View Foundation Ledger
+                  <ArrowRight size={16} />
+                </Link>
+                <Link to="/village-accounts" className="btn-secondary">
+                  Explore Village Accounts
+                </Link>
+              </div>
+            </div>
 
-                    <div className="flex-grow space-y-3">
-                      <input value={newUpdate.image_url} onChange={e => setNewUpdate({...newUpdate, image_url: e.target.value})} type="text" placeholder="Or paste an image URL here..." className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-saffron-500 text-sm" />
-                      
-                      {/* Image Preview */}
-                      {newUpdate.image_url && (
-                        <div className="relative w-24 h-24 rounded-2xl overflow-hidden border-4 border-white shadow-xl group">
-                          <img src={newUpdate.image_url} className="w-full h-full object-cover" alt="Preview" />
-                          <button onClick={() => setNewUpdate({...newUpdate, image_url: ''})} className="absolute inset-0 bg-rose-500/80 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"><X size={20}/></button>
-                        </div>
-                      )}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+              <div className="rounded-[1.5rem] border border-white/12 bg-white/10 p-5 backdrop-blur-md">
+                <p className="muted-label text-white/60">What improves now</p>
+                <p className="mt-3 text-2xl font-semibold text-white">Less distraction, better reading flow, premium styling.</p>
+              </div>
+              <div className="rounded-[1.5rem] border border-white/12 bg-white/10 p-5 backdrop-blur-md">
+                <p className="muted-label text-white/60">Village focus</p>
+                <div className="mt-4 space-y-3 text-sm leading-7 text-white/82">
+                  <p>Important records stay visible and easy to scan.</p>
+                  <p>Spotlight updates look attractive without too much movement.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="dashboard-grid">
+          {quickLinks.map(({ title, description, to, icon: Icon, accent }) => (
+            <Link key={title} to={to} className="section-card group block overflow-hidden p-7">
+              <div className={`mb-6 inline-flex h-14 w-14 items-center justify-center rounded-[1.2rem] bg-gradient-to-br ${accent}`}>
+                <Icon className="text-slate-800" size={24} />
+              </div>
+              <h2 className="display-title text-3xl text-slate-900">{title}</h2>
+              <p className="mt-3 text-sm leading-7 text-slate-600">{description}</p>
+              <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[color:var(--brand-deep)]">
+                Open section
+                <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
+              </div>
+            </Link>
+          ))}
+        </section>
+
+        <section className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="section-card overflow-hidden">
+            <div className="flex flex-col gap-4 border-b border-[color:var(--line)] px-6 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+              <div>
+                <p className="muted-label">Village spotlight</p>
+                <h2 className="section-title mt-2">Updates that are easier to read and share</h2>
+              </div>
+              {isAdmin && (
+                <button onClick={() => setIsEditModalOpen(true)} className="btn-ghost self-start sm:self-auto">
+                  <Settings size={16} />
+                  Manage spotlight
+                </button>
+              )}
+            </div>
+
+            {isLoading ? (
+              <div className="flex min-h-[420px] items-center justify-center px-6 py-12 text-slate-500">Loading spotlight updates...</div>
+            ) : activeUpdate ? (
+              <div className="grid min-h-[420px] lg:grid-cols-[1fr_0.92fr]">
+                <div className="min-h-[280px] bg-stone-200">
+                  <img src={activeUpdate.image_url} alt={activeUpdate.title} className="h-full w-full object-cover" />
+                </div>
+                <div className="flex flex-col justify-between bg-[color:var(--panel-strong)] p-6 sm:p-8">
+                  <div>
+                    <span className={`inline-flex rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] ${categoryStyles[activeUpdate.category] || categoryStyles.GENERAL}`}>
+                      {activeUpdate.category}
+                    </span>
+                    <h3 className="display-title mt-5 text-4xl leading-tight text-slate-900">{activeUpdate.title}</h3>
+                    <p className="mt-4 max-w-xl text-base leading-8 text-slate-600">{activeUpdate.description}</p>
+                  </div>
+
+                  <div className="mt-8 flex items-center justify-between gap-4">
+                    <div className="text-sm text-slate-500">
+                      Card {slideIndex + 1} of {updates.length}
+                    </div>
+                    <div className="flex gap-3">
+                      <button onClick={prevSlide} className="btn-ghost h-12 w-12 rounded-full px-0" aria-label="Previous update">
+                        <ChevronLeft size={18} />
+                      </button>
+                      <button onClick={nextSlide} className="btn-primary h-12 w-12 rounded-full px-0" aria-label="Next update">
+                        <ChevronRight size={18} />
+                      </button>
                     </div>
                   </div>
                 </div>
-
-                <button 
-                  onClick={() => addMutation.mutate(newUpdate)}
-                  className="w-full py-5 bg-slate-900 text-white font-black text-lg rounded-[2rem] shadow-2xl hover:bg-slate-800 transition-all mt-4 uppercase tracking-widest disabled:opacity-50"
-                  disabled={addMutation.isPending || !newUpdate.title}
-                >
-                  {addMutation.isPending ? 'Publishing...' : 'Add Spotlight'}
-                </button>
               </div>
-            </motion.div>
+            ) : (
+              <div className="flex min-h-[320px] items-center justify-center px-6 py-12 text-center text-slate-500">
+                No updates have been published yet.
+              </div>
+            )}
           </div>
-        )}
-      </AnimatePresence>
+
+          <div className="space-y-6">
+            <div className="section-card p-6 sm:p-8">
+              <p className="muted-label">Why this works better</p>
+              <h2 className="section-title mt-2">Simple layout, strong visual confidence</h2>
+              <div className="mt-6 space-y-4 text-sm leading-7 text-slate-600">
+                <p>The redesign reduces heavy motion and makes each action more obvious, so users can find information faster.</p>
+                <p>Warm colors, refined typography, and cleaner spacing make the app feel more premium without becoming harder to use.</p>
+              </div>
+            </div>
+
+            <div className="section-card p-6 sm:p-8">
+              <p className="muted-label">Village spotlight</p>
+              <h2 className="section-title mt-2">Latest community highlights</h2>
+              <p className="mt-4 text-sm leading-7 text-slate-600">
+                This area keeps birthdays, weddings, festivals, and important village updates in one beautiful section.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <button className="absolute inset-0 bg-slate-950/45 backdrop-blur-sm" onClick={() => setIsEditModalOpen(false)} aria-label="Close modal" />
+          <div className="section-card relative z-10 w-full max-w-2xl p-6 sm:p-8">
+            <div className="mb-8 flex items-start justify-between gap-4">
+              <div>
+                <p className="muted-label">Admin tools</p>
+                <h3 className="display-title mt-2 text-3xl text-slate-900">Create spotlight update</h3>
+              </div>
+              <button onClick={() => setIsEditModalOpen(false)} className="btn-ghost h-11 w-11 rounded-full px-0">
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2">
+              <div>
+                <label className="field-label">Title</label>
+                <input
+                  value={newUpdate.title}
+                  onChange={(e) => setNewUpdate({ ...newUpdate, title: e.target.value })}
+                  type="text"
+                  placeholder="Community news title"
+                  className="field-input"
+                />
+              </div>
+              <div>
+                <label className="field-label">Category</label>
+                <select
+                  value={newUpdate.category}
+                  onChange={(e) => setNewUpdate({ ...newUpdate, category: e.target.value })}
+                  className="field-input"
+                >
+                  <option value="BIRTHDAY">Birthday</option>
+                  <option value="MARRIAGE">Marriage</option>
+                  <option value="FESTIVAL">Festival</option>
+                  <option value="GENERAL">General news</option>
+                </select>
+              </div>
+              <div className="md:col-span-2">
+                <label className="field-label">Description</label>
+                <textarea
+                  value={newUpdate.description}
+                  onChange={(e) => setNewUpdate({ ...newUpdate, description: e.target.value })}
+                  rows={4}
+                  placeholder="Write a clear summary for everyone in the village."
+                  className="field-input resize-none"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="field-label">Photo</label>
+                <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
+                <div className="flex flex-col gap-4 sm:flex-row">
+                  <button type="button" onClick={() => fileInputRef.current?.click()} className="btn-ghost justify-center sm:w-44">
+                    <Camera size={16} />
+                    Upload image
+                  </button>
+                  <input
+                    value={newUpdate.image_url}
+                    onChange={(e) => setNewUpdate({ ...newUpdate, image_url: e.target.value })}
+                    type="text"
+                    placeholder="Or paste an image URL"
+                    className="field-input"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {newUpdate.image_url && (
+              <div className="mt-5 h-28 w-28 overflow-hidden rounded-[1.2rem] border border-[color:var(--line)]">
+                <img src={newUpdate.image_url} alt="Preview" className="h-full w-full object-cover" />
+              </div>
+            )}
+
+            <button
+              onClick={() => addMutation.mutate(newUpdate)}
+              className="btn-primary mt-8 w-full justify-center py-4 text-base"
+              disabled={addMutation.isPending || !newUpdate.title}
+            >
+              {addMutation.isPending ? 'Publishing...' : 'Publish spotlight'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

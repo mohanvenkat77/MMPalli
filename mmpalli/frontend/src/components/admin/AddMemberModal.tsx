@@ -7,8 +7,6 @@ export default function AddMemberModal({ isOpen, onClose }: { isOpen: boolean; o
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [fatherName, setFatherName] = useState('');
-    const [fee, setFee] = useState('500');
-
     const { mutate, isPending, isSuccess, isError, error, reset } = useAddMember();
 
   const handleSubmit = (e: React.FormEvent) => {

@@ -2,6 +2,7 @@
 const Member = require('../models/Member');
 const FoundationLedger = require('../models/FoundationLedger');
 const VillageLedger = require('../models/VillageLedger');
+const AmbedhkarJayantiLedger = require('../models/AmbedhkarJayantiLedger');
 const NewsHighlight = require('../models/NewsHighlight');
 const { getCurrentFinancialYear } = require('../utils/financialYear');
 
@@ -226,6 +227,59 @@ exports.getVillageExpenses = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
+exports.getAmbedhkarSummary = async (req, res, next) => {
+  try {
+    const fy = req.query.financial_year || getCurrentFinancialYear();
+    const summary = await AmbedhkarJayantiLedger.aggregate([
+      { $match: { financial_year: fy } },
+      {
+        $group: {
+          _id: null,
+          total_income: { $sum: { $cond: [{ $eq: ['$type', 'CREDIT'] }, '$amount', 0] } },
+          total_expenses: { $sum: { $cond: [{ $eq: ['$type', 'DEBIT'] }, '$amount', 0] } },
+          total_contributions: { $sum: { $cond: [{ $eq: ['$category', 'CONTRIBUTION'] }, '$amount', 0] } }
+        }
+      }
+    ]);
+
+    const contributors = await AmbedhkarJayantiLedger.distinct('contributor_name', {
+      financial_year: fy,
+      type: 'CREDIT'
+    });
+
+    const data = summary[0] || { total_income: 0, total_expenses: 0, total_contributions: 0 };
+
+    res.json({
+      financial_year: fy,
+      total_income: data.total_income,
+      total_expenses: data.total_expenses,
+      balance: data.total_income - data.total_expenses,
+      total_contributions: data.total_contributions,
+      total_contributors: contributors.length
+    });
+  } catch (error) { next(error); }
+};
+
+exports.getAmbedhkarLedger = async (req, res, next) => {
+  try {
+    const fy = req.query.financial_year || getCurrentFinancialYear();
+    const { type, category } = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 25;
+
+    const filter = { financial_year: fy };
+    if (type) filter.type = type;
+    if (category) filter.category = category;
+
+    const [data, total_count] = await Promise.all([
+      AmbedhkarJayantiLedger.find(filter).sort({ txn_date: -1 }).skip((page - 1) * limit).limit(limit).lean(),
+      AmbedhkarJayantiLedger.countDocuments(filter)
+    ]);
+
+    res.json({ data, total_count, page, total_pages: Math.ceil(total_count / limit), financial_year: fy });
+  } catch (error) { next(error); }
+};
+
 exports.getNews = async (req, res, next) => {
   try {
     const month = req.query.month || new Date().toISOString().slice(0, 7);
@@ -243,6 +297,7 @@ exports.exportData = async (req, res, next) => {
     if (type === 'members') data = await Member.find().sort({ join_date: 1 }).lean();
     else if (type === 'foundation_ledger') data = await FoundationLedger.find({ financial_year: fy }).sort({ txn_date: 1 }).lean();
     else if (type === 'village_ledger') data = await VillageLedger.find({ financial_year: fy }).sort({ txn_date: 1 }).lean();
+    else if (type === 'ambedhkar_ledger') data = await AmbedhkarJayantiLedger.find({ financial_year: fy }).sort({ txn_date: 1 }).lean();
     else return res.status(400).json({ error: 'Invalid export type' });
 
     if (req.query.format === 'csv') {
