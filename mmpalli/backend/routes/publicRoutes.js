@@ -4,6 +4,7 @@ const pub = require('../controllers/publicController');
 const report = require('../controllers/reportController');
 const memberCtrl = require('../controllers/adminMemberController');
 const newsCtrl = require('../controllers/adminNewsController');
+const youthCtrl = require('../controllers/youthContactController');
 // Foundation
 router.get('/foundation/summary', pub.getFoundationSummary);
 router.get('/foundation/ledger', pub.getFoundationLedger);
@@ -30,6 +31,7 @@ router.get('/news', pub.getNews);
 // Add this line so the frontend can "ask" for the matrix data
 router.get('/foundation/contribution-matrix', memberCtrl.getContributionMatrix);
 router.get('/foundation/village-updates', newsCtrl.getVillageUpdates);
+router.get('/youth-contacts', youthCtrl.getYouthContacts);
 // Reports
 router.get('/reports/:type', report.generateReport);
 router.get('/export/:type', pub.exportData); // Export CSV/JSON

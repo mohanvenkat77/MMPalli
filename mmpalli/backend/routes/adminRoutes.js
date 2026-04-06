@@ -6,6 +6,7 @@ const foundationCtrl = require('../controllers/adminFoundationController');
 const villageCtrl = require('../controllers/adminVillageController');
 const ambedhkarCtrl = require('../controllers/adminAmbedhkarController');
 const newsCtrl = require('../controllers/adminNewsController');
+const youthCtrl = require('../controllers/youthContactController');
 
 /**
  * SECURITY GUARD
@@ -28,6 +29,9 @@ router.post('/foundation/log-income', foundationCtrl.logIncome);
 router.get('/foundation/members', memberCtrl.getAllMembers);
 router.post('/foundation/village-updates', newsCtrl.addVillageUpdate);
 router.delete('/foundation/village-updates/:id', newsCtrl.deleteVillageUpdate);
+router.post('/youth-contacts', youthCtrl.createYouthContact);
+router.put('/youth-contacts/:id', youthCtrl.updateYouthContact);
+router.delete('/youth-contacts/:id', youthCtrl.deleteYouthContact);
 // --- VILLAGE SECTION ---
 router.post('/village/log-transaction', villageCtrl.logTransaction);
 

@@ -10,10 +10,12 @@ import {
   Settings,
   X,
   Camera,
+  Trash2,
   ChevronLeft,
   ChevronRight,
   HeartHandshake,
 } from 'lucide-react';
+import YouthContactsDirectory from '../components/shared/YouthContactsDirectory';
 
 const categoryStyles: Record<string, string> = {
   BIRTHDAY: 'bg-amber-100 text-amber-800',
@@ -98,6 +100,14 @@ export default function LandingPage() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => adminApi.delete(`/foundation/village-updates/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['villageUpdates'] });
+      setSlideIndex(0);
+    },
+  });
+
   const activeUpdate = useMemo(() => {
     if (!updates?.length) return null;
     return updates[slideIndex % updates.length];
@@ -115,11 +125,9 @@ export default function LandingPage() {
               <span className="eyebrow">MatlaMala Palli community portal</span>
               <div className="space-y-4">
                 <h1 className="display-title max-w-3xl text-5xl leading-tight sm:text-6xl lg:text-7xl">
-                  {/* <span className="text-white/90">A cleaner digital home for </span> */}
                   <span className="bg-gradient-to-r from-amber-200 via-orange-200 to-yellow-100 bg-clip-text text-transparent">
                     Matla Mala Palli
                   </span>
-                  
                 </h1>
                 <p className="max-w-2xl text-base leading-8 text-white/76 sm:text-lg">
                   Track community funds, celebrations, and development progress through a simpler experience that feels trustworthy,
@@ -170,7 +178,7 @@ export default function LandingPage() {
           ))}
         </section>
 
-        <section className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+        <section className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-stretch">
           <div className="section-card overflow-hidden">
             <div className="flex flex-col gap-4 border-b border-[color:var(--line)] px-6 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8">
               <div>
@@ -202,9 +210,7 @@ export default function LandingPage() {
                   </div>
 
                   <div className="mt-8 flex items-center justify-between gap-4">
-                    <div className="text-sm text-slate-500">
-                      Card {slideIndex + 1} of {updates.length}
-                    </div>
+                    <div className="text-sm text-slate-500">Card {slideIndex + 1} of {updates.length}</div>
                     <div className="flex gap-3">
                       <button onClick={prevSlide} className="btn-ghost h-12 w-12 rounded-full px-0" aria-label="Previous update">
                         <ChevronLeft size={18} />
@@ -223,24 +229,7 @@ export default function LandingPage() {
             )}
           </div>
 
-          <div className="space-y-6">
-            <div className="section-card p-6 sm:p-8">
-              <p className="muted-label">Why this works better</p>
-              <h2 className="section-title mt-2">Simple layout, strong visual confidence</h2>
-              <div className="mt-6 space-y-4 text-sm leading-7 text-slate-600">
-                <p>The redesign reduces heavy motion and makes each action more obvious, so users can find information faster.</p>
-                <p>Warm colors, refined typography, and cleaner spacing make the app feel more premium without becoming harder to use.</p>
-              </div>
-            </div>
-
-            <div className="section-card p-6 sm:p-8">
-              <p className="muted-label">Village spotlight</p>
-              <h2 className="section-title mt-2">Latest community highlights</h2>
-              <p className="mt-4 text-sm leading-7 text-slate-600">
-                This area keeps birthdays, weddings, festivals, and important village updates in one beautiful section.
-              </p>
-            </div>
-          </div>
+          <YouthContactsDirectory />
         </section>
       </div>
 
@@ -324,6 +313,24 @@ export default function LandingPage() {
             >
               {addMutation.isPending ? 'Publishing...' : 'Publish spotlight'}
             </button>
+
+            {!!updates?.length && (
+              <div className="mt-8 border-t border-[color:var(--line)] pt-6">
+                <p className="field-label">Delete existing spotlight cards</p>
+                <div className="mt-3 flex flex-wrap gap-3">
+                  {updates.map((up: any) => (
+                    <button
+                      key={up._id}
+                      onClick={() => deleteMutation.mutate(up._id)}
+                      disabled={deleteMutation.isPending}
+                      className="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-rose-700 disabled:opacity-50"
+                    >
+                      <Trash2 size={14} /> Remove {up.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
