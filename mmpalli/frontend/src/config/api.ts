@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://mmpalli-1.onrender.com/api';
+const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://mmpalli-1.onrender.com';
+const normalizedBaseUrl = rawBaseUrl.replace(/\/+$/, '');
+const API_BASE_URL = normalizedBaseUrl.endsWith('/api') ? normalizedBaseUrl : `${normalizedBaseUrl}/api`;
 
 // For reading data (No API key needed)
 export const publicApi = axios.create({
